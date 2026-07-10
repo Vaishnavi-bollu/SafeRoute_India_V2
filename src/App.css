@@ -383,6 +383,7 @@ h3 {
   color: white;
 }
 
+
 .map-card {
   min-height: 220px;
 }
@@ -440,19 +441,20 @@ h3 {
   top: 18px;
   left: 18px;
   right: auto;
-  max-width: calc(100% - 36px);
+  max-width: 92%;
   z-index: 3;
   backdrop-filter: blur(16px);
   background: rgba(4, 13, 9, 0.75);
-  padding: 10px 14px;
-  border-radius: 20px;
+  padding: 8px 12px;
+  border-radius: 18px;
   border: 1px solid rgba(107, 255, 175, 0.18);
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .live-map-screen .screen__header--overlay {
   width: auto;
+  max-width: 420px;
 }
 
 .map-actions {

@@ -20,40 +20,60 @@ const defaultRoute = {
   lighting: 82,
   heatLabel: 'Moderate',
   heatFill: '68%',
+  liveAlerts: [
+    'Live route updates will appear here once your current location is available.',
+  ],
   heatmapZones: [
     { name: 'Sector 15 Market', crowd: 'High', lighting: 'Medium', className: 'high' },
     { name: 'Safe Shelter', crowd: 'Low', lighting: 'High', className: 'low' },
     { name: 'Police Booth', crowd: 'Medium', lighting: 'High', className: 'med' },
   ],
   safePlaces: [
-    { name: 'Sector 15 Police Help Booth', distance: '650 m', lat: 28.533, lng: 77.212 },
-    { name: '24/7 Community Safety Shelter', distance: '1.1 km', lat: 28.528, lng: 77.205 },
-    { name: 'Lighting Checkpoint', distance: '1.9 km', lat: 28.535, lng: 77.220 },
+    { name: 'Local Safety Booth', distance: '650 m', lat: 0, lng: 0 },
+    { name: '24/7 Community Shelter', distance: '1.1 km', lat: 0, lng: 0 },
+    { name: 'Well-lit Checkpoint', distance: '1.9 km', lat: 0, lng: 0 },
   ],
   policeStations: [
-    { name: 'Sector 12 Police Station', distance: '450 m', lat: 28.531, lng: 77.207 },
-    { name: 'City Central Police Booth', distance: '680 m', lat: 28.527, lng: 77.213 },
-    { name: 'Community Police Help Desk', distance: '930 m', lat: 28.530, lng: 77.215 },
+    { name: 'Local Police Station', address: 'Nearby safety hub', distance: '450 m', lat: 0, lng: 0 },
+    { name: 'Community Police Station', address: 'Nearby civic center', distance: '680 m', lat: 0, lng: 0 },
+    { name: 'Central Police Station', address: 'Nearby main road', distance: '930 m', lat: 0, lng: 0 },
+    { name: 'North Police Station', address: 'Nearby north district', distance: '1.2 km', lat: 0, lng: 0 },
+    { name: 'South Police Station', address: 'Nearby south district', distance: '1.4 km', lat: 0, lng: 0 },
   ],
 }
 
-const defaultPoliceStationLocation = { lat: 28.529, lng: 77.209 }
+const defaultPoliceStationLocation = { lat: 0, lng: 0 }
 
 const getNearbyPoliceStations = (position) => [
   {
-    name: 'Sector 12 Police Station',
-    lat: position.lat + 0.0032,
-    lng: position.lng - 0.0021,
+    name: 'Local Police Station',
+    address: `Near main street, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
+    lat: position.lat + 0.0033,
+    lng: position.lng - 0.0018,
   },
   {
-    name: 'City Central Police Booth',
-    lat: position.lat - 0.0027,
-    lng: position.lng + 0.0029,
+    name: 'Community Police Station',
+    address: `Near civic center, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
+    lat: position.lat - 0.0022,
+    lng: position.lng + 0.0030,
   },
   {
-    name: 'Community Police Help Desk',
-    lat: position.lat + 0.0019,
-    lng: position.lng + 0.0035,
+    name: 'Central Police Station',
+    address: `Near main road, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
+    lat: position.lat + 0.0017,
+    lng: position.lng + 0.0038,
+  },
+  {
+    name: 'North Police Station',
+    address: `Near north market, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
+    lat: position.lat + 0.0041,
+    lng: position.lng + 0.0005,
+  },
+  {
+    name: 'South Police Station',
+    address: `Near south junction, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
+    lat: position.lat - 0.0040,
+    lng: position.lng - 0.0009,
   },
 ]
 
@@ -103,7 +123,7 @@ const getDistanceKm = (locA, locB) => {
 
 const buildRoute = (position) => {
   const currentPosition = position
-    ? `Near ${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`
+    ? `${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`
     : defaultRoute.currentPosition
 
   const nearestStation = position ? getNearestPoliceStation(position) : defaultPoliceStationLocation
@@ -116,11 +136,13 @@ const buildRoute = (position) => {
     .sort((a, b) => a.distanceKm - b.distanceKm)
     .map((station) => ({
       name: station.name,
+      address: station.address,
       distance: position ? `${Math.round(station.distanceKm * 1000)} m` : station.distance || '—',
       lat: station.lat,
       lng: station.lng,
     }))
   const stationName = nearestStation?.name ?? defaultRoute.name
+  const stationAddress = nearestStation?.address ?? ''
   const policeDist = position ? getDistanceKm(position, nearestStation) : 2.8
   const safePlaces = position ? getNearbySafePlaces(position) : defaultRoute.safePlaces
   const safePlacesWithDistance = safePlaces
@@ -141,6 +163,14 @@ const buildRoute = (position) => {
   const crowdDensity = position ? Math.max(30, Math.min(90, 80 - policeDist * 5)) : 68
   const lighting = position ? Math.max(45, Math.min(95, 70 + policeDist * 4)) : 82
   const heatFill = `${Math.min(100, Math.round(crowdDensity))}%`
+  const alertSeverity = crowdDensity > 75 ? 'High' : crowdDensity > 50 ? 'Moderate' : 'Low'
+  const liveAlerts = position
+    ? [
+        `${alertSeverity} crowd near ${stationName}`,
+        `${lighting}% lighting along the route`,
+        `Route to ${stationName} is ${distance}`,
+      ]
+    : defaultRoute.liveAlerts
 
   return {
     ...defaultRoute,
@@ -148,8 +178,8 @@ const buildRoute = (position) => {
     currentPosition,
     eta,
     distance,
-    crowdDensity,
-    lighting,
+    crowdDensity: Math.round(crowdDensity),
+    lighting: Math.round(lighting),
     heatLabel: crowdDensity > 75 ? 'High' : crowdDensity > 50 ? 'Moderate' : 'Low',
     heatFill,
     safePlaces: safePlacesWithDistance,
@@ -157,6 +187,8 @@ const buildRoute = (position) => {
     origin: position || null,
     nearestStation,
     stationLocation: nearestStation,
+    stationAddress,
+    liveAlerts,
   }
 }
 
@@ -234,6 +266,7 @@ function App() {
                 destination: route.nearestStation?.name ?? route.name,
                 destinationCoords: route.stationLocation || defaultPoliceStationLocation,
                 destinationDistance: route.distance,
+                destinationAddress: route.stationAddress,
                 origin: location || route.origin,
               })
               setActiveTab('map')
@@ -255,6 +288,7 @@ function App() {
                 destination: station.name,
                 destinationCoords: { lat: station.lat, lng: station.lng },
                 destinationDistance: station.distance,
+                destinationAddress: station.address,
                 origin: location || route.origin,
               })
               setActiveTab('map')

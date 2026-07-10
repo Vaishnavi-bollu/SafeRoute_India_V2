@@ -13,6 +13,7 @@ const getTextColor = (value, invert = false) => {
 }
 
 function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace, onOpenPoliceStation, route }) {
+
   const crowdStyle = {
     background: getHeatColor(route.crowdDensity, true),
     color: getTextColor(route.crowdDensity, true),
@@ -36,11 +37,9 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
         <p className="eyebrow">Current position</p>
         <div className="route-chip">{route.currentPosition}</div>
         <div className="route-chip">{route.name}</div>
-        <div className="route-chip">
-          {route.nearestStation
-            ? `Location: ${route.nearestStation.lat.toFixed(4)}, ${route.nearestStation.lng.toFixed(4)}`
-            : 'Location detail unavailable'}
-        </div>
+        {route.stationAddress && (
+          <div className="route-chip">{route.stationAddress}</div>
+        )}
         <div className="metric-row">
           <div>
             <strong>92%</strong>
@@ -60,7 +59,7 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
         </button>
       </GlassCard>
 
-      <GlassCard title="Nearby police stations" subtitle="Community and City Central police stations nearby">
+      <GlassCard title="Nearby police stations" subtitle="Updated with real nearby stations">
         <ul className="bullet-list safe-place-list">
           {route.policeStations?.map((station) => (
             <li key={station.name}>
@@ -69,7 +68,10 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
                 className="safe-place-item"
                 onClick={() => onOpenPoliceStation?.(station)}
               >
-                <span>{station.name}</span>
+                <div>
+                  <strong>{station.name}</strong>
+                  <small>{station.address}</small>
+                </div>
                 <small>{station.distance}</small>
               </button>
             </li>
@@ -109,11 +111,11 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
         </button>
       </GlassCard>
 
-      <GlassCard title="Live alerts" subtitle="Updated 2 min ago">
+      <GlassCard title="Live alerts" subtitle="Updated just now">
         <ul className="bullet-list">
-          <li>Ration market crowd easing near Sector 15</li>
-          <li>Two safe checkpoints available along the route</li>
-          <li>Emergency shelter 400m ahead</li>
+          {route.liveAlerts?.map((alert, index) => (
+            <li key={index}>{alert}</li>
+          ))}
         </ul>
       </GlassCard>
     </section>
