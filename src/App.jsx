@@ -178,7 +178,7 @@ function App() {
 
     switch (activeTab) {
       case 'map':
-        return <LiveMapScreen routeTarget={routeTarget} />
+        return <LiveMapScreen route={route} routeTarget={routeTarget} />
       case 'heatmap':
         return <HeatmapScreen route={route} routeTarget={routeTarget} />
       case 'sos':
