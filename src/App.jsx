@@ -34,10 +34,32 @@ const defaultRoute = {
 
 const defaultPoliceStationLocation = { lat: 28.529, lng: 77.209 }
 
-const getNearestPoliceStation = (position) => ({
-  lat: position.lat + 0.004,
-  lng: position.lng - 0.003,
-})
+const getNearbyPoliceStations = (position) => [
+  {
+    name: 'Sector 12 Police Station',
+    lat: position.lat + 0.0032,
+    lng: position.lng - 0.0021,
+  },
+  {
+    name: 'City Central Police Booth',
+    lat: position.lat - 0.0027,
+    lng: position.lng + 0.0029,
+  },
+  {
+    name: 'Community Police Help Desk',
+    lat: position.lat + 0.0019,
+    lng: position.lng + 0.0035,
+  },
+]
+
+const getNearestPoliceStation = (position) => {
+  const stations = getNearbyPoliceStations(position)
+  return stations.reduce((nearest, station) => {
+    const nearestDist = getDistanceKm(position, nearest)
+    const stationDist = getDistanceKm(position, station)
+    return stationDist < nearestDist ? station : nearest
+  }, stations[0])
+}
 
 const getNearbySafePlaces = (position) => [
   {
@@ -79,8 +101,8 @@ const buildRoute = (position) => {
     ? `Near ${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`
     : defaultRoute.currentPosition
 
-  const stationLocation = position ? getNearestPoliceStation(position) : defaultPoliceStationLocation
-  const policeDist = position ? getDistanceKm(position, stationLocation) : 2.8
+  const nearestStation = position ? getNearestPoliceStation(position) : defaultPoliceStationLocation
+  const policeDist = position ? getDistanceKm(position, nearestStation) : 2.8
   const safePlaces = position ? getNearbySafePlaces(position) : defaultRoute.safePlaces
   const safePlacesWithDistance = safePlaces
     .map((place) => ({
@@ -112,7 +134,8 @@ const buildRoute = (position) => {
     heatFill,
     safePlaces: safePlacesWithDistance,
     origin: position || null,
-    stationLocation,
+    nearestStation,
+    stationLocation: nearestStation,
   }
 }
 
@@ -187,8 +210,8 @@ function App() {
             onOpenMapRoute={() => {
               setRouteTarget({
                 ...route,
-                destination: route.name,
-                destinationCoords: policeStationLocation,
+                destination: route.nearestStation?.name ?? route.name,
+                destinationCoords: route.stationLocation || defaultPoliceStationLocation,
                 destinationDistance: route.distance,
                 origin: location || route.origin,
               })

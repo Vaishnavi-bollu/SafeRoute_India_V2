@@ -1,13 +1,22 @@
-function LiveMapScreen({ routeTarget }) {
-  const origin = routeTarget?.origin
-    ? `${routeTarget.origin.lat},${routeTarget.origin.lng}`
+function LiveMapScreen({ route, routeTarget }) {
+  const activeTarget = routeTarget || (route?.nearestStation
+    ? {
+        origin: route.origin,
+        destinationCoords: route.nearestStation,
+        destination: route.nearestStation.name,
+        destinationDistance: route.distance,
+      }
+    : null)
+
+  const origin = activeTarget?.origin
+    ? `${activeTarget.origin.lat},${activeTarget.origin.lng}`
     : 'My Location'
-  const destination = routeTarget?.destinationCoords
-    ? `${routeTarget.destinationCoords.lat},${routeTarget.destinationCoords.lng}`
-    : routeTarget?.destination ?? 'nearest police station'
-  const destinationLabel = routeTarget?.destination ?? 'Nearest police station'
-  const destinationDistance = routeTarget?.destinationDistance ?? ''
-  const mapQuery = routeTarget
+  const destination = activeTarget?.destinationCoords
+    ? `${activeTarget.destinationCoords.lat},${activeTarget.destinationCoords.lng}`
+    : activeTarget?.destination ?? 'nearest police station'
+  const destinationLabel = activeTarget?.destination ?? 'Nearest police station'
+  const destinationDistance = activeTarget?.destinationDistance ?? ''
+  const mapQuery = activeTarget
     ? `${origin} to ${destination}`
     : 'nearest police station'
   const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`
