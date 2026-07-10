@@ -59,7 +59,7 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
         </button>
       </GlassCard>
 
-      <GlassCard title="Nearby police stations" subtitle="Updated with real nearby stations">
+      <GlassCard title="Police stations near me" subtitle="Updated with real nearby stations">
         <ul className="bullet-list safe-place-list">
           {route.policeStations?.map((station) => (
             <li key={station.name}>

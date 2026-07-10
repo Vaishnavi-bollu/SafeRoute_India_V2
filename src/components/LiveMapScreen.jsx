@@ -10,17 +10,16 @@ function LiveMapScreen({ route, routeTarget }) {
 
   const origin = activeTarget?.origin
     ? `${activeTarget.origin.lat},${activeTarget.origin.lng}`
-    : 'My Location'
+    : ''
   const destinationLabel = activeTarget?.destination ?? 'Nearest police station'
   const destinationAddress = activeTarget?.destinationAddress ?? ''
   const destinationDistance = activeTarget?.destinationDistance ?? ''
   const destination = activeTarget?.destinationCoords
-    ? `${destinationLabel} near ${activeTarget.destinationCoords.lat.toFixed(4)},${activeTarget.destinationCoords.lng.toFixed(4)}`
+    ? `${activeTarget.destinationCoords.lat},${activeTarget.destinationCoords.lng}`
     : destinationLabel
-  const mapQuery = activeTarget
-    ? `${origin} to ${destination}`
-    : 'nearest police station'
-  const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`
+  const mapUrl = activeTarget && origin
+    ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`
+    : `https://www.google.com/maps?q=${encodeURIComponent(destination)}&output=embed`
 
   return (
     <section className="screen live-map-screen">
