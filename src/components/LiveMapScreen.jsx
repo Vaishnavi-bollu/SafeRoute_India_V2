@@ -21,6 +21,16 @@ function LiveMapScreen({ route, routeTarget }) {
     ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&travelmode=driving`
     : `https://www.google.com/maps?q=${encodeURIComponent(destination)}&output=embed`
 
+  const trafficLabel = route.crowdDensity > 75 ? 'Heavy traffic' : route.crowdDensity > 50 ? 'Moderate traffic' : 'Light traffic'
+  const trafficDetail = route.crowdDensity > 75
+    ? 'Avoid this route if possible'
+    : route.crowdDensity > 50
+      ? 'Use with caution'
+      : 'Good to go'
+  const alertLabel = route.lighting < 55 ? 'Low visibility' : 'Normal visibility'
+  const alertStation = activeTarget?.destination ?? route.nearestStation?.name ?? 'your route'
+  const alertDetail = `${alertLabel} near ${alertStation}`
+
   return (
     <section className="screen live-map-screen">
       <div className="map-fullscreen">
@@ -34,12 +44,14 @@ function LiveMapScreen({ route, routeTarget }) {
 
         <div className="map-actions">
           <button type="button" className="map-action map-action--traffic">
-            Traffic
-            <span>Moderate flow</span>
+            Traffic view
+            <span>{trafficLabel}</span>
+            <small>{trafficDetail}</small>
           </button>
           <button type="button" className="map-action map-action--alert">
-            Alert
-            <span>High crowd near Sector 15</span>
+            Nearby details
+            <span>{alertLabel}</span>
+            <small>{alertDetail}</small>
           </button>
         </div>
       </div>
