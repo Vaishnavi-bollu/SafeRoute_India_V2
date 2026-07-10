@@ -44,6 +44,8 @@ const defaultRoute = {
 
 const defaultPoliceStationLocation = { lat: 0, lng: 0 }
 
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || null
+
 const getNearbyPoliceStations = (position) => [
   {
     name: 'Local Police Station',
@@ -159,6 +161,9 @@ const buildRoute = (position) => {
     }))
 
   const distance = `${policeDist.toFixed(1)} km`
+  const alertDistance = policeDist < 1
+    ? `${Math.round(policeDist * 1000)} m`
+    : `${Math.round(policeDist)} km`
   const eta = `${Math.max(4, Math.round(policeDist * 4 + 3))} min`
   const crowdDensity = position ? Math.max(30, Math.min(90, 80 - policeDist * 5)) : 68
   const lighting = position ? Math.max(45, Math.min(95, 70 + policeDist * 4)) : 82
@@ -168,7 +173,7 @@ const buildRoute = (position) => {
     ? [
         `${alertSeverity} crowd near ${stationName}`,
         `${lighting}% lighting along the route`,
-        `Route to ${stationName} is ${distance}`,
+        `Route to ${stationName} is ${alertDistance}`,
       ]
     : defaultRoute.liveAlerts
 
@@ -188,6 +193,112 @@ const buildRoute = (position) => {
     nearestStation,
     stationLocation: nearestStation,
     stationAddress,
+    liveAlerts,
+  }
+}
+
+const loadMapsScript = (key) => new Promise((resolve, reject) => {
+  if (!key) return reject(new Error('No API key'))
+  const src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`
+  if (window.google && window.google.maps) return resolve()
+  const existing = document.querySelector(`script[src="${src}"]`)
+  if (existing) {
+    existing.addEventListener('load', () => resolve())
+    existing.addEventListener('error', () => reject())
+    return
+  }
+  const s = document.createElement('script')
+  s.src = src
+  s.async = true
+  s.defer = true
+  s.onload = () => resolve()
+  s.onerror = () => reject()
+  document.head.appendChild(s)
+})
+
+const fetchNearbyPoliceStationsUsingPlaces = async (position) => {
+  try {
+    await loadMapsScript(API_KEY)
+    const { maps } = window.google
+    // create a temporary div for PlacesService
+    const div = document.createElement('div')
+    const map = new maps.Map(div)
+    const service = new maps.places.PlacesService(map)
+    return new Promise((resolve) => {
+      const request = {
+        location: new maps.LatLng(position.lat, position.lng),
+        radius: 3000,
+        type: 'police',
+      }
+      service.nearbySearch(request, (results, status) => {
+        if (status !== maps.places.PlacesServiceStatus.OK || !results) {
+          resolve(null)
+          return
+        }
+        const stations = results.map((p) => ({
+          name: p.name,
+          address: p.vicinity || p.formatted_address || '',
+          lat: p.geometry?.location?.lat(),
+          lng: p.geometry?.location?.lng(),
+        }))
+        resolve(stations)
+      })
+    })
+  } catch (e) {
+    return null
+  }
+}
+
+const buildRouteFromPlaces = (position, places) => {
+  if (!position) return buildRoute(null)
+  if (!places || places.length === 0) return buildRoute(position)
+
+  const policeStationsWithDistance = places
+    .map((station) => ({
+      ...station,
+      distanceKm: getDistanceKm(position, { lat: station.lat, lng: station.lng }),
+    }))
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .map((station) => ({
+      name: station.name,
+      address: station.address,
+      distance: `${Math.round(station.distanceKm * 1000)} m`,
+      lat: station.lat,
+      lng: station.lng,
+    }))
+
+  const nearestStation = policeStationsWithDistance[0]
+  const policeDistKm = getDistanceKm(position, { lat: nearestStation.lat, lng: nearestStation.lng })
+  const distance = `${policeDistKm.toFixed(1)} km`
+  const alertDistance = policeDistKm < 1 ? `${Math.round(policeDistKm * 1000)} m` : `${Math.round(policeDistKm)} km`
+  const eta = `${Math.max(4, Math.round(policeDistKm * 4 + 3))} min`
+  const crowdDensity = Math.max(30, Math.min(90, 80 - policeDistKm * 5))
+  const lighting = Math.max(45, Math.min(95, 70 + policeDistKm * 4))
+  const heatFill = `${Math.min(100, Math.round(crowdDensity))}%`
+  const stationName = nearestStation?.name ?? defaultRoute.name
+
+  const liveAlerts = [
+    `${crowdDensity > 75 ? 'High' : crowdDensity > 50 ? 'Moderate' : 'Low'} crowd near ${stationName}`,
+    `${Math.round(lighting)}% lighting along the route`,
+    `Route to ${stationName} is ${alertDistance}`,
+  ]
+
+  return {
+    ...defaultRoute,
+    name: stationName,
+    currentPosition: `${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`,
+    eta,
+    distance,
+    crowdDensity: Math.round(crowdDensity),
+    lighting: Math.round(lighting),
+    heatLabel: crowdDensity > 75 ? 'High' : crowdDensity > 50 ? 'Moderate' : 'Low',
+    heatFill,
+    safePlaces: getNearbySafePlaces(position),
+    policeStations: policeStationsWithDistance,
+    origin: position,
+    nearestStation: nearestStation,
+    stationLocation: { lat: nearestStation.lat, lng: nearestStation.lng },
+    stationAddress: nearestStation.address,
     liveAlerts,
   }
 }
