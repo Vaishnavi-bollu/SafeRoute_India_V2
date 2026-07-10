@@ -11,6 +11,189 @@ import SettingsScreen from './components/SettingsScreen'
 import SplashScreen from './components/SplashScreen'
 import SosScreen from './components/SosScreen'
 
+const HYDERABAD_POLICE_STATIONS = [
+  {
+    name: 'Panjagutta Police Station',
+    address: 'Hyderabad, West Zone, 500082',
+    zone: 'West Zone',
+    lat: 17.4262,
+    lng: 78.4531,
+    contact: '09490616377',
+    pincode: '500082',
+  },
+  {
+    name: 'Gachibowli Police Station',
+    address: 'Cyberabad, Madhapur, 500032',
+    zone: 'Madhapur',
+    lat: 17.4411,
+    lng: 78.3612,
+    contact: '09490617126',
+    pincode: '500032',
+  },
+  {
+    name: 'Kukatpally Police Station',
+    address: 'Cyberabad, Kukatpally, 500072',
+    zone: 'Kukatpally',
+    lat: 17.4841,
+    lng: 78.3979,
+    contact: '09490617122',
+    pincode: '500072',
+  },
+  {
+    name: 'Marredpally Police Station',
+    address: 'Hyderabad, North Zone, 500026',
+    zone: 'North Zone',
+    lat: 17.4431,
+    lng: 78.5015,
+    contact: '09490616471',
+    pincode: '500026',
+  },
+  {
+    name: 'Abids Police Station',
+    address: 'Hyderabad, Central Zone, 500001',
+    zone: 'Central Zone',
+    lat: 17.3941,
+    lng: 78.4735,
+    contact: '09490616303',
+    pincode: '500001',
+  },
+  {
+    name: 'Chatrinaka Police Station',
+    address: 'Hyderabad, South Zone, 500053',
+    zone: 'South Zone',
+    lat: 17.3484,
+    lng: 78.4791,
+    contact: '09490616500',
+    pincode: '500053',
+  },
+  {
+    name: 'Nallakunta Police Station',
+    address: 'Hyderabad, East Zone, 500044',
+    zone: 'East Zone',
+    lat: 17.3986,
+    lng: 78.5061,
+    contact: '09490616373',
+    pincode: '500044',
+  },
+  {
+    name: 'Alwal Police Station',
+    address: 'Malkajgiri, Alwal, 500010',
+    zone: 'Alwal',
+    lat: 17.5023,
+    lng: 78.5019,
+    contact: '09490617254',
+    pincode: '500010',
+  },
+  {
+    name: 'Warangal Subedari PS',
+    address: 'Warangal, Kazipet, 506001',
+    zone: 'Kazipet',
+    lat: 17.9944,
+    lng: 79.5591,
+    contact: '09490617600',
+    pincode: '506001',
+  },
+  {
+    name: 'Karimnagar Town-I PS',
+    address: 'Karimnagar, Karimnagar, 505001',
+    zone: 'Karimnagar',
+    lat: 18.4385,
+    lng: 79.1288,
+    contact: '09490617501',
+    pincode: '505001',
+  },
+  {
+    name: 'Nizamabad I-Town PS',
+    address: 'Nizamabad, Nizamabad, 503001',
+    zone: 'Nizamabad',
+    lat: 18.6732,
+    lng: 78.0984,
+    contact: '09490618001',
+    pincode: '503001',
+  },
+  {
+    name: 'Khammam Three Town PS',
+    address: 'Khammam, Khammam, 507001',
+    zone: 'Khammam',
+    lat: 17.2471,
+    lng: 80.1514,
+    contact: '09490618103',
+    pincode: '507001',
+  },
+  {
+    name: 'Ramagundam NTR Nagar PS',
+    address: 'Ramagundam, Peddapalli, 505208',
+    zone: 'Peddapalli',
+    lat: 18.7618,
+    lng: 79.4752,
+    contact: '09490617461',
+    pincode: '505208',
+  },
+  {
+    name: 'Mahabubnagar Rural PS',
+    address: 'Mahabubnagar, Mahabubnagar, 509001',
+    zone: 'Mahabubnagar',
+    lat: 16.7481,
+    lng: 78.0035,
+    contact: '09490618201',
+    pincode: '509001',
+  },
+  {
+    name: 'Nalgonda Town-I PS',
+    address: 'Nalgonda, Nalgonda, 508001',
+    zone: 'Nalgonda',
+    lat: 17.0543,
+    lng: 79.2625,
+    contact: '09490618301',
+    pincode: '508001',
+  },
+  {
+    name: 'Adilabad One Town PS',
+    address: 'Adilabad, Adilabad, 504001',
+    zone: 'Adilabad',
+    lat: 19.6641,
+    lng: 78.5322,
+    contact: '09490618401',
+    pincode: '504001',
+  },
+  {
+    name: 'Suryapet Town PS',
+    address: 'Suryapet, Suryapet, 508213',
+    zone: 'Suryapet',
+    lat: 17.1424,
+    lng: 79.6241,
+    contact: '09490618351',
+    pincode: '508213',
+  },
+  {
+    name: 'Kothagudem L&O PS',
+    address: 'Bhadradri Kothagudem, Kothagudem, 507101',
+    zone: 'Kothagudem',
+    lat: 17.5511,
+    lng: 80.6148,
+    contact: '09490618151',
+    pincode: '507101',
+  },
+  {
+    name: 'Siddipet Three Town PS',
+    address: 'Siddipet, Siddipet, 502103',
+    zone: 'Siddipet',
+    lat: 18.1012,
+    lng: 78.8524,
+    contact: '09490617403',
+    pincode: '502103',
+  },
+  {
+    name: 'Sangareddy Town PS',
+    address: 'Sangareddy, Sangareddy, 502001',
+    zone: 'Sangareddy',
+    lat: 17.6121,
+    lng: 78.0831,
+    contact: '09490613101',
+    pincode: '502001',
+  },
+]
+
 const defaultRoute = {
   name: 'Nearest Police Station',
   currentPosition: 'Finding your location...',
@@ -33,51 +216,20 @@ const defaultRoute = {
     { name: '24/7 Community Shelter', distance: '1.1 km', lat: 0, lng: 0 },
     { name: 'Well-lit Checkpoint', distance: '1.9 km', lat: 0, lng: 0 },
   ],
-  policeStations: [
-    { name: 'Local Police Station', address: 'Nearby safety hub', distance: '450 m', lat: 0, lng: 0 },
-    { name: 'Community Police Station', address: 'Nearby civic center', distance: '680 m', lat: 0, lng: 0 },
-    { name: 'Central Police Station', address: 'Nearby main road', distance: '930 m', lat: 0, lng: 0 },
-    { name: 'North Police Station', address: 'Nearby north district', distance: '1.2 km', lat: 0, lng: 0 },
-    { name: 'South Police Station', address: 'Nearby south district', distance: '1.4 km', lat: 0, lng: 0 },
-  ],
+  policeStations: HYDERABAD_POLICE_STATIONS.map((station) => ({
+    name: station.name,
+    address: station.address,
+    distance: '—',
+    lat: station.lat,
+    lng: station.lng,
+  })),
 }
 
 const defaultPoliceStationLocation = { lat: 0, lng: 0 }
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || null
 
-const getNearbyPoliceStations = (position) => [
-  {
-    name: 'Local Police Station',
-    address: `Near main street, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
-    lat: position.lat + 0.0033,
-    lng: position.lng - 0.0018,
-  },
-  {
-    name: 'Community Police Station',
-    address: `Near civic center, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
-    lat: position.lat - 0.0022,
-    lng: position.lng + 0.0030,
-  },
-  {
-    name: 'Central Police Station',
-    address: `Near main road, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
-    lat: position.lat + 0.0017,
-    lng: position.lng + 0.0038,
-  },
-  {
-    name: 'North Police Station',
-    address: `Near north market, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
-    lat: position.lat + 0.0041,
-    lng: position.lng + 0.0005,
-  },
-  {
-    name: 'South Police Station',
-    address: `Near south junction, ${position.lat.toFixed(4)}, ${position.lng.toFixed(4)}`,
-    lat: position.lat - 0.0040,
-    lng: position.lng - 0.0009,
-  },
-]
+const getNearbyPoliceStations = (position) => HYDERABAD_POLICE_STATIONS
 
 const getNearestPoliceStation = (position) => {
   const stations = getNearbyPoliceStations(position)
@@ -128,7 +280,6 @@ const buildRoute = (position) => {
     ? `${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`
     : defaultRoute.currentPosition
 
-  const nearestStation = position ? getNearestPoliceStation(position) : defaultPoliceStationLocation
   const policeStations = position ? getNearbyPoliceStations(position) : defaultRoute.policeStations
   const policeStationsWithDistance = policeStations
     .map((station) => ({
@@ -142,10 +293,13 @@ const buildRoute = (position) => {
       distance: position ? `${Math.round(station.distanceKm * 1000)} m` : station.distance || '—',
       lat: station.lat,
       lng: station.lng,
+      contact: station.contact,
+      pincode: station.pincode,
     }))
+  const nearestStation = position ? policeStationsWithDistance[0] : defaultPoliceStationLocation
   const stationName = nearestStation?.name ?? defaultRoute.name
   const stationAddress = nearestStation?.address ?? ''
-  const policeDist = position ? getDistanceKm(position, nearestStation) : 2.8
+  const policeDist = position ? getDistanceKm(position, { lat: nearestStation.lat, lng: nearestStation.lng }) : 2.8
   const safePlaces = position ? getNearbySafePlaces(position) : defaultRoute.safePlaces
   const safePlacesWithDistance = safePlaces
     .map((place) => ({
