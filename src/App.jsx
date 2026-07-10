@@ -30,6 +30,11 @@ const defaultRoute = {
     { name: '24/7 Community Safety Shelter', distance: '1.1 km', lat: 28.528, lng: 77.205 },
     { name: 'Lighting Checkpoint', distance: '1.9 km', lat: 28.535, lng: 77.220 },
   ],
+  policeStations: [
+    { name: 'Sector 12 Police Station', distance: '450 m', lat: 28.531, lng: 77.207 },
+    { name: 'City Central Police Booth', distance: '680 m', lat: 28.527, lng: 77.213 },
+    { name: 'Community Police Help Desk', distance: '930 m', lat: 28.530, lng: 77.215 },
+  ],
 }
 
 const defaultPoliceStationLocation = { lat: 28.529, lng: 77.209 }
@@ -102,6 +107,19 @@ const buildRoute = (position) => {
     : defaultRoute.currentPosition
 
   const nearestStation = position ? getNearestPoliceStation(position) : defaultPoliceStationLocation
+  const policeStations = position ? getNearbyPoliceStations(position) : defaultRoute.policeStations
+  const policeStationsWithDistance = policeStations
+    .map((station) => ({
+      ...station,
+      distanceKm: position ? getDistanceKm(position, { lat: station.lat, lng: station.lng }) : 0,
+    }))
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .map((station) => ({
+      name: station.name,
+      distance: position ? `${Math.round(station.distanceKm * 1000)} m` : station.distance || '—',
+      lat: station.lat,
+      lng: station.lng,
+    }))
   const policeDist = position ? getDistanceKm(position, nearestStation) : 2.8
   const safePlaces = position ? getNearbySafePlaces(position) : defaultRoute.safePlaces
   const safePlacesWithDistance = safePlaces
@@ -133,6 +151,7 @@ const buildRoute = (position) => {
     heatLabel: crowdDensity > 75 ? 'High' : crowdDensity > 50 ? 'Moderate' : 'Low',
     heatFill,
     safePlaces: safePlacesWithDistance,
+    policeStations: policeStationsWithDistance,
     origin: position || null,
     nearestStation,
     stationLocation: nearestStation,
@@ -224,6 +243,16 @@ function App() {
                 destination: place.name,
                 destinationCoords: { lat: place.lat, lng: place.lng },
                 destinationDistance: place.distance,
+                origin: location || route.origin,
+              })
+              setActiveTab('map')
+            }}
+            onOpenPoliceStation={(station) => {
+              setRouteTarget({
+                ...route,
+                destination: station.name,
+                destinationCoords: { lat: station.lat, lng: station.lng },
+                destinationDistance: station.distance,
                 origin: location || route.origin,
               })
               setActiveTab('map')

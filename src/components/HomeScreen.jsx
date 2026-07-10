@@ -12,7 +12,7 @@ const getTextColor = (value, invert = false) => {
   return pct > threshold ? '#041008' : '#e4ffe5'
 }
 
-function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace, route }) {
+function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace, onOpenPoliceStation, route }) {
   const crowdStyle = {
     background: getHeatColor(route.crowdDensity, true),
     color: getTextColor(route.crowdDensity, true),
@@ -53,6 +53,23 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
         <button type="button" className="primary-btn" onClick={onOpenMapRoute}>
           View route details
         </button>
+      </GlassCard>
+
+      <GlassCard title="Nearby police stations" subtitle="Choose the closest station to route to">
+        <ul className="bullet-list safe-place-list">
+          {route.policeStations?.map((station) => (
+            <li key={station.name}>
+              <button
+                type="button"
+                className="safe-place-item"
+                onClick={() => onOpenPoliceStation?.(station)}
+              >
+                <span>{station.name}</span>
+                <small>{station.distance}</small>
+              </button>
+            </li>
+          ))}
+        </ul>
       </GlassCard>
 
       <GlassCard title="Nearest safe places" subtitle="Along the route to the police station">
