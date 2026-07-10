@@ -120,6 +120,7 @@ const buildRoute = (position) => {
       lat: station.lat,
       lng: station.lng,
     }))
+  const stationName = nearestStation?.name ?? defaultRoute.name
   const policeDist = position ? getDistanceKm(position, nearestStation) : 2.8
   const safePlaces = position ? getNearbySafePlaces(position) : defaultRoute.safePlaces
   const safePlacesWithDistance = safePlaces
@@ -143,6 +144,7 @@ const buildRoute = (position) => {
 
   return {
     ...defaultRoute,
+    name: stationName,
     currentPosition,
     eta,
     distance,

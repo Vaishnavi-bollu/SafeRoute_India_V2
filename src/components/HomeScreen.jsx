@@ -36,6 +36,11 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
         <p className="eyebrow">Current position</p>
         <div className="route-chip">{route.currentPosition}</div>
         <div className="route-chip">{route.name}</div>
+        <div className="route-chip">
+          {route.nearestStation
+            ? `Location: ${route.nearestStation.lat.toFixed(4)}, ${route.nearestStation.lng.toFixed(4)}`
+            : 'Location detail unavailable'}
+        </div>
         <div className="metric-row">
           <div>
             <strong>92%</strong>
@@ -55,7 +60,7 @@ function HomeScreen({ onNavigate, onOpenMapRoute, onOpenHeatmap, onOpenSafePlace
         </button>
       </GlassCard>
 
-      <GlassCard title="Nearby police stations" subtitle="Choose the closest station to route to">
+      <GlassCard title="Nearby police stations" subtitle="Community and City Central police stations nearby">
         <ul className="bullet-list safe-place-list">
           {route.policeStations?.map((station) => (
             <li key={station.name}>
