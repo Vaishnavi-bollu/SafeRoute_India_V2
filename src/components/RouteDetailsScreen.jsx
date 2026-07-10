@@ -1,21 +1,41 @@
 import GlassCard from './GlassCard'
 
-function RouteDetailsScreen() {
+function RouteDetailsScreen({ route, routeTarget }) {
+  const destination = routeTarget?.destination ?? route.name
+  const destinationDistance = routeTarget?.destinationDistance ?? route.distance
+  const originLabel = route.currentPosition
+  const steps = routeTarget?.destinationCoords
+    ? [
+        { step: '01', title: 'Start from current location', subtitle: originLabel },
+        { step: '02', title: `Head toward ${destination}`, subtitle: `About ${destinationDistance}` },
+        { step: '03', title: 'Arrive at destination', subtitle: destination },
+      ]
+    : [
+        { step: '01', title: 'Start from current location', subtitle: originLabel },
+        { step: '02', title: 'Follow the main safety corridor', subtitle: 'Use well-lit streets' },
+        { step: '03', title: 'Reach nearest police station', subtitle: destination },
+      ]
+
   return (
     <section className="screen">
       <div className="screen__header">
         <div>
           <p className="eyebrow">Route details</p>
-          <h2>Safe corridor</h2>
+          <h2>{destination}</h2>
+          <p className="small-copy">{route.eta} · {route.distance}</p>
         </div>
         <div className="avatar-pill">🛣</div>
       </div>
 
-      <GlassCard title="Route 7A" subtitle="Safer alternative to Main Road">
+      <GlassCard title="Guided route" subtitle="Current navigation plan">
         <div className="timeline">
-          <div><strong>01</strong><span>Police checkpoint</span></div>
-          <div><strong>02</strong><span>Well-lit underpass</span></div>
-          <div><strong>03</strong><span>Open cafeteria</span></div>
+          {steps.map((item) => (
+            <div key={item.step}>
+              <strong>{item.step}</strong>
+              <span>{item.title}</span>
+              <small>{item.subtitle}</small>
+            </div>
+          ))}
         </div>
       </GlassCard>
 

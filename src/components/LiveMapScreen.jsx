@@ -1,15 +1,28 @@
 function LiveMapScreen({ routeTarget }) {
-  const destination = routeTarget?.destination ?? 'nearest police station'
+  const origin = routeTarget?.origin
+    ? `${routeTarget.origin.lat},${routeTarget.origin.lng}`
+    : 'My Location'
+  const destination = routeTarget?.destinationCoords
+    ? `${routeTarget.destinationCoords.lat},${routeTarget.destinationCoords.lng}`
+    : routeTarget?.destination ?? 'nearest police station'
+  const destinationLabel = routeTarget?.destination ?? 'Nearest police station'
+  const destinationDistance = routeTarget?.destinationDistance ?? ''
   const mapQuery = routeTarget
-    ? encodeURIComponent(`${routeTarget.currentPosition} to ${destination}`)
-    : encodeURIComponent('nearest police station')
+    ? `${origin} to ${destination}`
+    : 'nearest police station'
+  const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`
 
   return (
     <section className="screen live-map-screen">
       <div className="screen__header screen__header--overlay">
         <div>
           <p className="eyebrow">Live map</p>
-          <h2>{routeTarget ? 'Police station route' : 'Route overlay'}</h2>
+          <h2>{routeTarget ? `${destinationLabel} route` : 'Route overlay'}</h2>
+          {routeTarget && (
+            <p className="small-copy">
+              {destinationLabel} {destinationDistance ? `· ${destinationDistance}` : ''}
+            </p>
+          )}
         </div>
         <div className="avatar-pill">🗺</div>
       </div>
@@ -18,7 +31,7 @@ function LiveMapScreen({ routeTarget }) {
         <iframe
           title="Google Map"
           className="map-iframe"
-          src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
+          src={mapUrl}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         />

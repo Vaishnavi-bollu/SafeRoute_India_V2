@@ -32,7 +32,33 @@ const defaultRoute = {
   ],
 }
 
-const policeStationLocation = { lat: 28.529, lng: 77.209 }
+const defaultPoliceStationLocation = { lat: 28.529, lng: 77.209 }
+
+const getNearestPoliceStation = (position) => ({
+  lat: position.lat + 0.004,
+  lng: position.lng - 0.003,
+})
+
+const getNearbySafePlaces = (position) => [
+  {
+    name: 'Community Safety Shelter',
+    distanceLabel: '420 m',
+    lat: position.lat + 0.0028,
+    lng: position.lng + 0.0015,
+  },
+  {
+    name: 'Well-lit Café',
+    distanceLabel: '610 m',
+    lat: position.lat - 0.0019,
+    lng: position.lng + 0.0022,
+  },
+  {
+    name: 'Metro Exit Lounge',
+    distanceLabel: '890 m',
+    lat: position.lat + 0.0035,
+    lng: position.lng - 0.0012,
+  },
+]
 
 const toRadians = (value) => (value * Math.PI) / 180
 
@@ -53,8 +79,10 @@ const buildRoute = (position) => {
     ? `Near ${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`
     : defaultRoute.currentPosition
 
-  const policeDist = position ? getDistanceKm(position, policeStationLocation) : 2.8
-  const safePlaces = defaultRoute.safePlaces
+  const stationLocation = position ? getNearestPoliceStation(position) : defaultPoliceStationLocation
+  const policeDist = position ? getDistanceKm(position, stationLocation) : 2.8
+  const safePlaces = position ? getNearbySafePlaces(position) : defaultRoute.safePlaces
+  const safePlacesWithDistance = safePlaces
     .map((place) => ({
       ...place,
       distanceKm: position ? getDistanceKm(position, { lat: place.lat, lng: place.lng }) : 0,
@@ -62,13 +90,13 @@ const buildRoute = (position) => {
     .sort((a, b) => a.distanceKm - b.distanceKm)
     .map((place) => ({
       name: place.name,
-      distance: `${Math.round(place.distanceKm * 1000)} m`,
+      distance: position ? `${Math.round(place.distanceKm * 1000)} m` : place.distance || '—',
       lat: place.lat,
       lng: place.lng,
     }))
 
   const distance = `${policeDist.toFixed(1)} km`
-  const eta = `${Math.max(6, Math.round(policeDist * 5 + 4))} min`
+  const eta = `${Math.max(4, Math.round(policeDist * 4 + 3))} min`
   const crowdDensity = position ? Math.max(30, Math.min(90, 80 - policeDist * 5)) : 68
   const lighting = position ? Math.max(45, Math.min(95, 70 + policeDist * 4)) : 82
   const heatFill = `${Math.min(100, Math.round(crowdDensity))}%`
@@ -82,7 +110,9 @@ const buildRoute = (position) => {
     lighting,
     heatLabel: crowdDensity > 75 ? 'High' : crowdDensity > 50 ? 'Moderate' : 'Low',
     heatFill,
-    safePlaces,
+    safePlaces: safePlacesWithDistance,
+    origin: position || null,
+    stationLocation,
   }
 }
 
@@ -127,33 +157,59 @@ function App() {
       case 'map':
         return <LiveMapScreen routeTarget={routeTarget} />
       case 'heatmap':
-        return <HeatmapScreen route={route} />
+        return <HeatmapScreen route={route} routeTarget={routeTarget} />
       case 'sos':
         return <SosScreen onTrigger={() => setScreen('home')} />
       case 'settings':
         return <SettingsScreen />
       case 'route-details':
-        return <RouteDetailsScreen />
+        return <RouteDetailsScreen route={route} routeTarget={routeTarget} />
       case 'nearby':
-        return <NearbySafePlacesScreen />
+        return (
+          <NearbySafePlacesScreen
+            route={route}
+            onOpenSafePlace={(place) => {
+              setRouteTarget({
+                ...route,
+                destination: place.name,
+                destinationCoords: { lat: place.lat, lng: place.lng },
+                destinationDistance: place.distance,
+                origin: location || route.origin,
+              })
+              setActiveTab('map')
+            }}
+          />
+        )
       default:
         return (
           <HomeScreen
             onNavigate={(next) => setActiveTab(next)}
             onOpenMapRoute={() => {
-              setRouteTarget({ ...route, destination: route.name })
+              setRouteTarget({
+                ...route,
+                destination: route.name,
+                destinationCoords: policeStationLocation,
+                destinationDistance: route.distance,
+                origin: location || route.origin,
+              })
               setActiveTab('map')
             }}
             onOpenHeatmap={() => setActiveTab('heatmap')}
             onOpenSafePlace={(place) => {
-              setRouteTarget({ ...route, destination: place.name })
+              setRouteTarget({
+                ...route,
+                destination: place.name,
+                destinationCoords: { lat: place.lat, lng: place.lng },
+                destinationDistance: place.distance,
+                origin: location || route.origin,
+              })
               setActiveTab('map')
             }}
             route={route}
           />
         )
     }
-  }, [activeTab, screen, routeTarget])
+  }, [activeTab, screen, routeTarget, route, location])
 
   const handleNav = (next) => {
     setActiveTab(next)

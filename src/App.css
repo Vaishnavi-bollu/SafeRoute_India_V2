@@ -402,25 +402,33 @@ h3 {
 
 .screen__header--overlay {
   position: absolute;
-  top: 132px;
+  top: 18px;
   left: 18px;
-  right: 18px;
+  right: auto;
+  max-width: calc(100% - 36px);
   z-index: 3;
   backdrop-filter: blur(16px);
   background: rgba(4, 13, 9, 0.75);
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 20px;
   border: 1px solid rgba(107, 255, 175, 0.18);
+  display: grid;
+  gap: 6px;
+}
+
+.live-map-screen .screen__header--overlay {
+  width: auto;
 }
 
 .map-actions {
   position: absolute;
   left: 18px;
   right: 18px;
-  top: 18px;
+  bottom: 18px;
+  top: auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
   z-index: 3;
 }
 
@@ -429,9 +437,9 @@ h3 {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  min-height: 100px;
-  padding: 16px;
-  border-radius: 24px;
+  min-height: 70px;
+  padding: 12px;
+  border-radius: 20px;
   border: 1px solid rgba(105, 255, 145, 0.18);
   background: rgba(11, 27, 18, 0.95);
   color: #e4f7e3;

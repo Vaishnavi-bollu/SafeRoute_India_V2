@@ -1,12 +1,15 @@
 import GlassCard from './GlassCard'
 
-function HeatmapScreen({ route }) {
+function HeatmapScreen({ route, routeTarget }) {
+  const destinationLabel = routeTarget?.destination ?? route.name
+
   return (
     <section className="screen">
       <div className="screen__header">
         <div>
           <p className="eyebrow">Heatmap</p>
           <h2>Safety zones</h2>
+          <p className="small-copy">Route to {destinationLabel}</p>
         </div>
         <div className="avatar-pill">🔥</div>
       </div>
